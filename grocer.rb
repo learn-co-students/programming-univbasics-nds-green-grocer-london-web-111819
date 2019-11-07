@@ -38,7 +38,6 @@ def consolidate_cart(cart)
     index = index +1 
   end
   new_cart
-return new_cart
 end
 
 def apply_coupons(cart, coupons)
@@ -49,7 +48,7 @@ def apply_coupons(cart, coupons)
   temp = cart.length
   
   while index2 < temp do
-    construct_entries_discounted = cart[index2]
+    construct_entries_discounted = {} #changed07Nov19 from cart[index2]
     get_item_coupon_details = find_item_by_name_in_collection(cart[index2][:item],coupons)
     if get_item_coupon_details != nil
       how_many_discounted_groups = cart[index2][:count].div(get_item_coupon_details[:num])
@@ -62,11 +61,12 @@ def apply_coupons(cart, coupons)
       construct_entries_discounted[:item] = cart[index2][:item] + " W/COUPON"
       construct_entries_discounted[:price] = get_item_coupon_details[:cost] / get_item_coupon_details[:num]
       construct_entries_discounted[:count] =how_many_discounted_groups*get_item_coupon_details[:num]
+      construct_entries_discounted[:clearance] = cart[index2][:clearance]
       cart << construct_entries_discounted
     end
     index2 = index2 + 1 
   end
-  p cart
+  #p cart
   return cart
 end
 
@@ -76,11 +76,12 @@ def apply_clearance(cart)
   # REMEMBER: This method **should** update cart
   index3 = 0
   while index3 < cart.length do
-    if cart[index3][:clearance] == true
-      cart[index3][:price] = cart[index3][:price]*0.8
+    if cart[index3][:clearance]
+      cart[index3][:price] = (cart[index3][:price]*0.8).to_f.round(2)
     end
     index3 = index3 + 1 
   end
+  p cart
   return cart
 end
 
@@ -107,21 +108,21 @@ def checkout(cart, coupons)
 end
 
 sample_array = [
-  {:item => "AVOCADO", :price => 3.00, :clearance => true},
-  {:item => "AVOCADO", :price => 3.00, :clearance => true},
-  {:item => "AVOCADO", :price => 3.00, :clearance => true},
-  {:item => "AVOCADO", :price => 3.00, :clearance => true},
-  {:item => "KALE", :price => 3.00, :clearance => false},
-  {:item => "KALE", :price => 3.00, :clearance => false},
-  {:item => "AVOCADO", :price => 3.00, :clearance => true},
-  {:item => "PEAR", :price => 5.00, :clearance => true}
+  {:item => "AVOCADO", :price => 10.00, :clearance => true},
+  {:item => "AVOCADO", :price => 10.00, :clearance => true},
+  {:item => "AVOCADO", :price => 10.00, :clearance => true},
+  {:item => "AVOCADO", :price => 10.00, :clearance => true},
+  {:item => "KALE", :price => 10.00, :clearance => false},
+  {:item => "KALE", :price => 10.00, :clearance => false},
+  {:item => "AVOCADO", :price => 10.00, :clearance => true},
+  {:item => "PEAR", :price => 10.00, :clearance => true}
   ]
 
 sample_coupon_array = [
-  {:item => "AVOCADO", :num=> 3, :cost => 5.00},
-  {:item => "KALE", :num=> 3, :cost => 4.80}
+  {:item => "AVOCADO", :num=> 3, :cost => 27.00},
+  {:item => "KALE", :num=> 3, :cost => 24.00}
   ]
  
 #p find_item_by_name_in_collection("PEAR",sample_array)
 consolidated = consolidate_cart(sample_array)
-#apply_clearance(apply_coupons(consolidated,sample_coupon_array)
+apply_clearance(apply_coupons(consolidated,sample_coupon_array))
